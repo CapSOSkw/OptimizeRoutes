@@ -178,43 +178,6 @@ class SA_route():
         return new_path
 
 
-if __name__ == '__main__':
-    pass
-    # df = pd.read_csv("sim_route.csv")
-    # x, y = df['lat'].values, df['lng'].values
-    # routine = np.array([[i, j] for i, j in zip(x, y)])
-    # index_list = df['index'].tolist()
-    # #
-    # start_loc, start_index = np.array([[40.773003, -73.817376]]), np.array([90])
-    #
-    # end_loc, end_index = np.array([[40.790580, -73.845480]]), np.array([99])
-    # #
-    # centroid = 3
-    # cluster = Cluster(k=centroid, route_array=routine, index_list=index_list)
-    # label_list = cluster.labels
-    #
-    # # route_point, route_index = cluster.point_in_cluster
-    # # print(route_point)
-    # # print(route_index)
-    #
-    # temp = cluster.point_in_cluster
-    # print(temp)
-    #
-    #
-    # #
-    # # sa = SA_route()
-    # # for i in range(centroid):
-    # # #
-    # #     routes = np.append(start_loc, route_point[i], 0)
-    # #     routes = np.append(routes, end_loc,0)
-    # # #
-    # #     index_ = np.append(start_index, route_index[i],0)
-    # #     index_ = np.append(index_, end_index,0)
-    # # #
-    # #     # print(routes, index_)
-    # #     path, dis = sa.SA(routes, index_)
-    # #     print(path, dis)
-
 
 
 
