@@ -45,6 +45,9 @@ class Cluster():
             # route_point.append(pickup_points)
 
             my_dict[str(i)] = {'route_point': pickup_points, 'route_index':label_index}
+            '''
+            My_dict 保存了 哪个cluster的label， 及其中的点位置和点的index
+            '''
         # return route_point, route_index  # Modified on 01.28
 
         return my_dict
