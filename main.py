@@ -5,9 +5,9 @@ from random import *
 from cluster import Cluster
 from swap import *
 from SA_route import *
-from optimize_route import *
+from Merge_route import *
 
-class main():
+class Optimize():
 
     def __init__(self, pickup_point_df, car_df, destination_df, k):
         '''
@@ -36,7 +36,7 @@ class main():
         self.index_pickup = pickup_point_df['index'].tolist()
 
         self.cluster = Cluster(k=self.k, route_array=self.pickup_points, index_list=self.index_pickup)
-        self.sa = SA_route()
+        self.sa = SA()
 
     def _cluster_info(self):
         centroid_df = pd.DataFrame.from_records(self.cluster.centroid, columns=['lat', 'lng'])
@@ -52,16 +52,16 @@ class main():
         centroid_df, label_points_index = self._cluster_info()
         print(centroid_df)
         print(self.car_df)
-        cluster_order = self.sa.SA_car(centroid_df, self.car_df)   # get 1st car to which cluster, 2nd to which one, and so on
+        cluster_order = self.sa.Car(centroid_df, self.car_df)   # get 1st car to which cluster, 2nd to which one, and so on
         print(cluster_order)
         result = {}
 
         for i in range(self.k):
 
-            routes = Optimize.merge_start_end_route(np.array([self.car_points[i]]), label_points_index[str(cluster_order[i])]['route_point'], np.array([self.end_point[0]]))
-            route_index = Optimize.merge_start_end_index(np.array([self.car_index[i]]), label_points_index[str(cluster_order[i])]['route_index'], np.array([self.end_index[0]]))
+            routes = Merge.merge_start_end_route(np.array([self.car_points[i]]), label_points_index[str(cluster_order[i])]['route_point'], np.array([self.end_point[0]]))
+            route_index = Merge.merge_start_end_index(np.array([self.car_index[i]]), label_points_index[str(cluster_order[i])]['route_index'], np.array([self.end_index[0]]))
 
-            path, distance = self.sa.SA(routes, route_index)
+            path, distance = self.sa.Route(routes, route_index)
 
             result['Route' + str(i)] = {'Path': path, 'Distance': distance, 'Cluster': cluster_order[i]}
 
@@ -74,6 +74,6 @@ if __name__ == '__main__':
     destination_df = pd.read_csv("sim_end.csv")
 
     k = 3
-    test = main(pickup_point_df=pickup_points_df, car_df=car_df, destination_df=destination_df, k=k).run
+    test = Optimize(pickup_point_df=pickup_points_df, car_df=car_df, destination_df=destination_df, k=k).run
     print(test)
 
