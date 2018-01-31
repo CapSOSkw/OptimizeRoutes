@@ -5,11 +5,11 @@ from random import *
 from cluster import *
 from swap import *
 
-class SA_route():
+class SA():
     def __init__(self):
         pass
 
-    def SA(self, route_array, index_list):
+    def Route(self, route_array, index_list):
         array_length = len(route_array)
         distance_matrix = np.zeros((array_length, array_length))
         # '''
@@ -69,7 +69,7 @@ class SA_route():
         # Initial SA parameters
 
         T_end = 0
-        L = 50000
+        L = 2000
         delta_T = 0.99
         T = 1
 
@@ -101,7 +101,7 @@ class SA_route():
         return path_res, trip_distance
 
 
-    def SA_car(self, centroid_df, car_df):
+    def Car(self, centroid_df, car_df):
         '''
 
         :param centroid_df: Should contain centroids' location and label
@@ -110,10 +110,11 @@ class SA_route():
         '''
 
         car_length = car_df.shape[0]
-        distance_matrix = np.zeros((car_length, car_length))
+        distance_matrix = np.zeros((car_length, car_length))   #创建空向量， 来存储点与点之间的距离
 
         enum_pickup_index = list(enumerate(centroid_df['label'].tolist()))
         centroid_label_dict = dict(enum_pickup_index)
+        #由于每次得到的label不一样， 需要给创建一个dict来保存index。接下来就是用生成的序号进行运算，最后再找回原来的。
         print(centroid_label_dict)
 
         pickup_index = [ind[0] for ind in enum_pickup_index]
@@ -130,14 +131,17 @@ class SA_route():
 
         trip_distance = 0
         for i in range(0, car_length):
-            trip_distance = trip_distance + distance_matrix[i][path[i]]
+            trip_distance = trip_distance + distance_matrix[i][path[i]]  # 先根据path得出一个初始的总距离值
 
+
+        #初始化SA参数
         T_end = 0
         L = 2000
         delta_T = 0.99
         T = 1
 
         for _ in range(L):
+
             shuffle(copy_pickup_index)
             swap = copy_pickup_index[:2]
             swap = sorted(swap)
@@ -145,35 +149,32 @@ class SA_route():
             c1 = swap[0]
             c2 = swap[1]
 
-            # print(c1, c2)
-            # swap = Swap(array(path))
-            # plan_path = swap.swap(c1, c2)
-            plan_path = array(path)
-            plan_path.swap(c1,c2)
+            plan_path = Swap2(path)
+            plan_path.swap(c1,c2)          #交换index为c1， c2位置的值， 得到新的组合
 
             new_distance = 0
             for j in range(0,car_length):
-                # print(distance_matrix[j][plan_path[j]])
                 new_distance = new_distance + distance_matrix[j][plan_path[j]]
 
             delta_distance = new_distance - trip_distance
 
-            if delta_distance < 0:
+            if delta_distance < 0:         # 效果好，直接采用该path， 并更新总路程。
                 # print("better result, accept")
                 trip_distance = new_distance
                 path = plan_path
 
-            elif math.exp(-delta_distance / T) > random():
+            elif math.exp(-delta_distance / T) > random():  #效果不好，但是通过了接受概率，就可以接受该结果。
                 # print("bad result, accept")
                 trip_distance = new_distance
                 path = plan_path
 
-            # print(path, trip_distance)
+            # Update T until reach threshold
             T = T * delta_T
             if T < T_end:
                 break
-        print(path)
-        new_path = [centroid_label_dict[p] for p in path]
+
+
+        new_path = [centroid_label_dict[p] for p in path]  #还原成原本的index
 
         return new_path
 
