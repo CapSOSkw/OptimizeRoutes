@@ -29,20 +29,19 @@ class Optimize():
         self.end_point = np.array([[i, j] for i,j in zip(self.end_x, self.end_y)])
         self.end_index = self.destination_df['index'].values
 
-        self.k = k
-
         self.x, self.y = pickup_point_df['lat'].values, pickup_point_df['lng'].values
         self.pickup_points = np.array([[i, j] for i,j in zip(self.x, self.y)])
         self.index_pickup = pickup_point_df['index'].tolist()
 
+        self.k = k
         self.cluster = Cluster(k=self.k, route_array=self.pickup_points, index_list=self.index_pickup)
         self.sa = SA()
 
     def _cluster_info(self):
-        centroid_df = pd.DataFrame.from_records(self.cluster.centroid, columns=['lat', 'lng'])
-        centroid_df['label'] = self.cluster.predict(self.cluster.centroid)
+        centroid_df = pd.DataFrame.from_records(self.cluster.centroid, columns=['lat', 'lng'])  #得到中心点的坐标并存入dataframe
+        centroid_df['label'] = self.cluster.predict(self.cluster.centroid) #得到该中心点属于哪个cluster的
 
-        label_points_index = self.cluster.point_in_cluster
+        label_points_index = self.cluster.point_in_cluster #得到cluster的label， 及其中的点位置和点的index
 
         return centroid_df, label_points_index
 
@@ -52,10 +51,10 @@ class Optimize():
         centroid_df, label_points_index = self._cluster_info()
         print(centroid_df)
         print(self.car_df)
-        cluster_order = self.sa.Car(centroid_df, self.car_df)   # get 1st car to which cluster, 2nd to which one, and so on
+        cluster_order = self.sa.Car(centroid_df, self.car_df)   #分配车，哪个车去哪个cluster
         print(cluster_order)
-        result = {}
 
+        result = {}
         for i in range(self.k):
 
             routes = Merge.merge_start_end_route(np.array([self.car_points[i]]), label_points_index[str(cluster_order[i])]['route_point'], np.array([self.end_point[0]]))
